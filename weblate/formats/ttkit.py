@@ -1326,7 +1326,7 @@ class XliffFormat(TTKitFormat):
         """
         if not hasattr(self, "store") or self.store is None:
             return
-        
+
         # Iterate through all units and store their parent element
         for unit in self.store.units:
             if hasattr(unit, "xmlelement"):
@@ -1354,7 +1354,7 @@ class XliffFormat(TTKitFormat):
         unit.marktranslated()
         unit.markapproved(False)
         return unit
-    
+
     def add_unit(self, unit: TranslationUnit) -> None:
         """
         Add new unit to underlying store, preserving group structure.
@@ -1372,21 +1372,21 @@ class XliffFormat(TTKitFormat):
             # We use the base TranslationStore.addunit to avoid auto-adding to body
             from translate.storage.base import TranslationStore
             TranslationStore.addunit(self.store, unit.unit)
-            
+
             # Find an appropriate parent element for the new unit
             # Try to find an existing group if any exist, otherwise use body
             parent_element = self._find_appropriate_parent()
-            
+
             # Add the unit's XML element to the parent
             parent_element.append(unit.unit.xmlelement)
-            
+
             # Update the parent map with the new unit's parent
             unit_id = unit.unit.getid()
             self._parent_map[unit_id] = parent_element
         else:
             # Fallback to default behavior for non-LISA stores
             super().add_unit(unit)
-    
+
     def _find_appropriate_parent(self):
         """
         Find the appropriate parent element (group or body) for a new unit.
@@ -1410,7 +1410,7 @@ class XliffFormat(TTKitFormat):
                     group_tag = f"{{{self.store.namespace}}}group"
                     if parent.tag == group_tag:
                         return parent
-        
+
         # Default to body element
         return self.store.body
 
