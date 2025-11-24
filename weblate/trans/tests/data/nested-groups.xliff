@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="en-GB" datatype="plaintext" original="nested.xlf">
+    <body>
+      <group id="outer" resname="OuterGroup">
+        <trans-unit id="unit1">
+          <source>Outer Unit</source>
+          <target>Outer Unit</target>
+        </trans-unit>
+        <group id="inner" resname="InnerGroup">
+          <trans-unit id="unit2">
+            <source>Inner Unit</source>
+            <target>Inner Unit</target>
+          </trans-unit>
+        </group>
+      </group>
+      <trans-unit id="unit3">
+        <source>Standalone Unit</source>
+        <target>Standalone Unit</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
