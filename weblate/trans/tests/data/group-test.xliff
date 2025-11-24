@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="en-GB" datatype="plaintext" original="Base.g.xlf">
+    <body>
+      <group id="group1" resname="MyGroup">
+        <trans-unit id="unit1">
+          <source>Hello World</source>
+          <target>Hello World</target>
+        </trans-unit>
+        <trans-unit id="unit2">
+          <source>Goodbye</source>
+          <target>Goodbye</target>
+        </trans-unit>
+      </group>
+      <trans-unit id="unit3">
+        <source>Standalone Unit</source>
+        <target>Standalone Unit</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

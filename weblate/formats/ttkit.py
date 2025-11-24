@@ -1309,6 +1309,26 @@ class XliffFormat(TTKitFormat):
 </xliff>
 """
 
+    def __init__(self, *args, **kwargs):
+        """Initialize XLIFF format and track group hierarchy."""
+        super().__init__(*args, **kwargs)
+        # Build a mapping of parent elements for units to preserve group structure
+        self._parent_map = {}
+        self._build_parent_map()
+
+    def _build_parent_map(self) -> None:
+        """Build a mapping of unit IDs to their parent elements (group or body)."""
+        if not hasattr(self, "store") or self.store is None:
+            return
+        
+        # Iterate through all units and store their parent element
+        for unit in self.store.units:
+            if hasattr(unit, "xmlelement"):
+                parent = unit.xmlelement.getparent()
+                if parent is not None:
+                    unit_id = unit.getid()
+                    self._parent_map[unit_id] = parent
+
     def construct_unit(self, source: str):
         unit = super().construct_unit(source)
         # Make sure new unit is using same namespace as the original
@@ -1328,6 +1348,47 @@ class XliffFormat(TTKitFormat):
         unit.marktranslated()
         unit.markapproved(False)
         return unit
+    
+    def add_unit(self, unit: TranslationUnit) -> None:
+        """Add new unit to underlying store, preserving group structure."""
+        # For XLIFF, we need to handle the parent element explicitly
+        if isinstance(self.store, LISAfile):
+            unit.unit.namespace = self.store.namespace
+            # Add to the store's unit list (but not to body yet)
+            # We use the base TranslationStore.addunit to avoid auto-adding to body
+            from translate.storage.base import TranslationStore
+            TranslationStore.addunit(self.store, unit.unit)
+            
+            # Find an appropriate parent element for the new unit
+            # Try to find an existing group if any exist, otherwise use body
+            parent_element = self._find_appropriate_parent()
+            
+            # Add the unit's XML element to the parent
+            parent_element.append(unit.unit.xmlelement)
+            
+            # Update the parent map with the new unit's parent
+            unit_id = unit.unit.getid()
+            self._parent_map[unit_id] = parent_element
+        else:
+            # Fallback to default behavior for non-LISA stores
+            super().add_unit(unit)
+    
+    def _find_appropriate_parent(self):
+        """Find the appropriate parent element (group or body) for a new unit."""
+        # If we have existing units with groups, use the last group that was used
+        # Otherwise, fall back to body
+        if self._parent_map:
+            # Get the last used parent (could be a group or body)
+            # Prefer groups over body
+            for parent in reversed(list(self._parent_map.values())):
+                # Check if this is a group element
+                if hasattr(self.store, "namespace"):
+                    group_tag = f"{{{self.store.namespace}}}group"
+                    if parent.tag == group_tag:
+                        return parent
+        
+        # Default to body element
+        return self.store.body
 
 
 class RichXliffFormat(XliffFormat):
