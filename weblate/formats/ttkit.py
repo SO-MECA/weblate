@@ -1317,7 +1317,13 @@ class XliffFormat(TTKitFormat):
         self._build_parent_map()
 
     def _build_parent_map(self) -> None:
-        """Build a mapping of unit IDs to their parent elements (group or body)."""
+        """
+        Build a mapping of unit IDs to their parent elements (group or body).
+
+        This map is used to track which units belong to which group elements,
+        allowing us to preserve the XLIFF group hierarchy when adding new units
+        or saving the file.
+        """
         if not hasattr(self, "store") or self.store is None:
             return
         
@@ -1350,7 +1356,15 @@ class XliffFormat(TTKitFormat):
         return unit
     
     def add_unit(self, unit: TranslationUnit) -> None:
-        """Add new unit to underlying store, preserving group structure."""
+        """
+        Add new unit to underlying store, preserving group structure.
+
+        This method overrides the default behavior to ensure that new trans-unit
+        elements are added to their appropriate parent (either a group element or
+        the body element), rather than always being added to the body.
+
+        This preserves the XLIFF group hierarchy as specified in XLIFF 1.2.
+        """
         # For XLIFF, we need to handle the parent element explicitly
         if isinstance(self.store, LISAfile):
             unit.unit.namespace = self.store.namespace
@@ -1374,7 +1388,17 @@ class XliffFormat(TTKitFormat):
             super().add_unit(unit)
     
     def _find_appropriate_parent(self):
-        """Find the appropriate parent element (group or body) for a new unit."""
+        """
+        Find the appropriate parent element (group or body) for a new unit.
+
+        The strategy is:
+        1. If groups exist, use the last group found (which handles nested groups
+           by selecting the innermost group)
+        2. Otherwise, fall back to the body element
+
+        This ensures that new units are added in a location that makes sense
+        based on the existing file structure.
+        """
         # If we have existing units with groups, use the last group that was used
         # Otherwise, fall back to body
         if hasattr(self, "_parent_map") and self._parent_map:
