@@ -1377,7 +1377,7 @@ class XliffFormat(TTKitFormat):
         """Find the appropriate parent element (group or body) for a new unit."""
         # If we have existing units with groups, use the last group that was used
         # Otherwise, fall back to body
-        if self._parent_map:
+        if hasattr(self, "_parent_map") and self._parent_map:
             # Get the last used parent (could be a group or body)
             # Prefer groups over body
             for parent in reversed(list(self._parent_map.values())):

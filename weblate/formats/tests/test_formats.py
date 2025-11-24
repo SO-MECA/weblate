@@ -87,6 +87,7 @@ TEST_GWT = get_test_file("gwt.properties")
 TEST_ANDROID = get_test_file("strings.xml")
 TEST_XLIFF = get_test_file("cs.xliff")
 TEST_XLIFF_GROUP = get_test_file("group-test.xliff")
+TEST_XLIFF_NESTED_GROUPS = get_test_file("nested-groups.xliff")
 TEST_POXLIFF = get_test_file("cs.poxliff")
 TEST_XLIFF_ID = get_test_file("ids.xliff")
 TEST_POT = get_test_file("hello.pot")
@@ -1002,6 +1003,81 @@ class XliffGroupFormatTest(XliffFormatTest):
         
         # New unit should be in the group
         self.assertIn("New Source", group_section)
+
+
+class XliffNestedGroupsFormatTest(XliffFormatTest):
+    """Test XLIFF nested group element preservation."""
+
+    FILE = TEST_XLIFF_NESTED_GROUPS
+    BASE = TEST_XLIFF_NESTED_GROUPS
+    COUNT = 3
+    EXPECTED_FLAGS: ClassVar[str | list[str]] = ""
+
+    def test_nested_groups_preservation(self) -> None:
+        """Test that nested groups are correctly preserved."""
+        testfile = os.path.join(self.tempdir, "test.xlf")
+        shutil.copy(self.FILE, testfile)
+        
+        storage = self.parse_file(testfile)
+        storage.save()
+        
+        content = Path(testfile).read_text()
+        
+        # Check both groups are preserved
+        self.assertIn('<group id="outer"', content)
+        self.assertIn('<group id="inner"', content)
+        self.assertIn('resname="OuterGroup"', content)
+        self.assertIn('resname="InnerGroup"', content)
+
+    def test_add_unit_to_nested_group(self) -> None:
+        """Test that new units are added to the innermost group."""
+        testfile = os.path.join(self.tempdir, "test.xlf")
+        shutil.copy(self.FILE, testfile)
+        
+        storage = self.parse_file(testfile)
+        storage.create_unit("newunit", "New Source", "New Target")
+        storage.save()
+        
+        content = Path(testfile).read_text()
+        
+        # New unit should be in the inner group (last group found)
+        self.assertIn("New Source", content)
+        
+        # Check it's in the inner group
+        parts = content.split('<group id="inner"')
+        self.assertEqual(len(parts), 2)
+        inner_section = parts[1].split("</group>")[0]
+        self.assertIn("New Source", inner_section)
+
+
+class XliffBackwardCompatibilityTest(XliffFormatTest):
+    """Test backward compatibility with files without groups."""
+
+    # Use the original cs.xliff which has no groups
+    FILE = TEST_XLIFF
+    BASE = TEST_XLIFF
+    COUNT = 4
+    EXPECTED_FLAGS: ClassVar[str | list[str]] = "c-format, max-length:100"
+
+    def test_no_groups_still_works(self) -> None:
+        """Test that files without groups still work correctly."""
+        testfile = os.path.join(self.tempdir, "test.xlf")
+        shutil.copy(self.FILE, testfile)
+        
+        storage = self.parse_file(testfile)
+        
+        # Add a new unit
+        storage.create_unit("newunit", "New Source", "New Target")
+        storage.save()
+        
+        content = Path(testfile).read_text()
+        
+        # New unit should be added
+        self.assertIn("New Source", content)
+        self.assertIn("New Target", content)
+        
+        # Should not have groups
+        self.assertNotIn("<group", content)
 
 
 class PoXliffFormatTest(XMLMixin, BaseFormatTest):
