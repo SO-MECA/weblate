@@ -758,6 +758,11 @@ class SearchForm(forms.Form):
     def get_initial(request: AuthenticatedHttpRequest):
         if "q" in request.GET:
             return {"q": request.GET["q"]}
+        if (
+            request.GET.get("filter") == "my_contributions"
+            and request.user.is_authenticated
+        ):
+            return {"q": f"changed_by:{request.user.username}"}
         return None
 
     def __init__(
