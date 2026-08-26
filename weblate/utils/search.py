@@ -541,6 +541,7 @@ class UnitTermExpr(BaseTermExpr):
         "language": "translation__language__code",
         "project": "translation__component__project__slug",
         "changed_by": "change__author__username",
+        "changed_by_email": "change__author__email",
         "suggestion_author": "suggestion__user__username",
         "comment_author": "comment__user__username",
         "label": "source_unit__labels__name",
@@ -706,7 +707,7 @@ class UnitTermExpr(BaseTermExpr):
     def field_extra(self, field: str, query: Q, match: Any) -> Q:  # noqa: ANN401
         from weblate.trans.models import Change
 
-        if field in {"changed", "changed_by"}:
+        if field in {"changed", "changed_by", "changed_by_email"}:
             return query & Q(change__action__in=Change.ACTIONS_CONTENT)
         if field == "check":
             return query & Q(check__dismissed=False)

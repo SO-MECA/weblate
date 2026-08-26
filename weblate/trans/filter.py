@@ -13,6 +13,8 @@ from django.utils.translation import gettext, gettext_lazy
 from weblate.checks.models import CHECKS
 
 if TYPE_CHECKING:
+    from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
+
     from django_stubs_ext import StrOrPromise
 
 
@@ -110,6 +112,24 @@ class FilterRegistry:
             if name.startswith("label:"):
                 return f'label:"{name[6:]}"'
             raise
+
+    def get_filter_query_for_user(
+        self,
+        name: str,
+        user: AbstractBaseUser | AnonymousUser,
+    ) -> str:
+        """Return filter query for a given name, substituting the current user."""
+        if name in {"my_contributions", "my_commits"}:
+            if not user.is_authenticated:
+                raise ValueError(
+                    f"{name} filter requires an authenticated user"
+                )
+        if name == "my_contributions":
+            return f"changed_by:{user.username}"
+        if name == "my_commits":
+            commit_email = user.profile.get_commit_email()
+            return f"changed_by_email:{commit_email}"
+        return self.get_filter_query(name)
 
 
 FILTERS = FilterRegistry()

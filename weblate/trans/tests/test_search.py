@@ -119,6 +119,52 @@ class SearchViewTest(TransactionsTestMixin, ViewTestCase):
         # Review, partial date
         self.do_search({"q": "changed:>=2010-01-"}, None)
 
+    def test_my_contributions_filter(self) -> None:
+        """Test that filter=my_contributions redirects to changed_by:username query."""
+        response = self.client.get(
+            self.translate_url, {"filter": "my_contributions"}
+        )
+        self.assertRedirects(
+            response,
+            f"{self.translation.get_absolute_url()}"
+            f"?q=changed_by:testuser#search",
+        )
+
+    def test_my_contributions_filter_anonymous(self) -> None:
+        """Anonymous users should not be redirected via my_contributions filter."""
+        self.client.logout()
+        response = self.client.get(
+            self.translate_url, {"filter": "my_contributions"}
+        )
+        # Without user context, filter is ignored and returns default redirect
+        self.assertRedirects(
+            response,
+            f"{self.translation.get_absolute_url()}#search",
+        )
+
+    def test_my_commits_filter(self) -> None:
+        """Test that filter=my_commits redirects to changed_by_email query."""
+        response = self.client.get(
+            self.translate_url, {"filter": "my_commits"}
+        )
+        commit_email = self.user.profile.get_commit_email()
+        self.assertRedirects(
+            response,
+            f"{self.translation.get_absolute_url()}"
+            f"?q=changed_by_email:{commit_email}#search",
+        )
+
+    def test_my_commits_filter_anonymous(self) -> None:
+        """Anonymous users should not be redirected via my_commits filter."""
+        self.client.logout()
+        response = self.client.get(
+            self.translate_url, {"filter": "my_commits"}
+        )
+        self.assertRedirects(
+            response,
+            f"{self.translation.get_absolute_url()}#search",
+        )
+
     def extract_params(self, response):
         search_url = re.findall(r'data-params="([^"]*)"', response.content.decode())[0]
         return QueryDict(search_url, mutable=True)

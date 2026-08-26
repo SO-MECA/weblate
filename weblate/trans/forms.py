@@ -758,6 +758,13 @@ class SearchForm(forms.Form):
     def get_initial(request: AuthenticatedHttpRequest):
         if "q" in request.GET:
             return {"q": request.GET["q"]}
+        if request.user.is_authenticated:
+            filter_param = request.GET.get("filter")
+            if filter_param == "my_contributions":
+                return {"q": f"changed_by:{request.user.username}"}
+            if filter_param == "my_commits":
+                commit_email = request.user.profile.get_commit_email()
+                return {"q": f"changed_by_email:{commit_email}"}
         return None
 
     def __init__(

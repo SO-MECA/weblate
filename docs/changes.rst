@@ -7,6 +7,8 @@ Weblate 5.15
 
 * Batch automatic translation can now be manually triggered at project language, category or component level, see :ref:`auto-translation`.
 * Added ability to completely disable the admin contact form by setting :setting:`CONTACT_FORM` to ``"disabled"``.
+* Added "My contributions" filter to quickly view strings last changed by the current user, available in the query builder and on the translation status page.
+* Added "My commits" filter and ``changed_by_email:`` search operator to filter strings by the author's commit e-mail address, useful when contributions are tracked by e-mail rather than username.
 
 .. rubric:: Improvements
 

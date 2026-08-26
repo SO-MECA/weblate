@@ -54,6 +54,14 @@
       {% translate "This translation is being used as source strings within this component." %}
     </div>
   {% endif %}
+  {% if user.is_authenticated %}
+    <div class="card-footer">
+      <a class="btn btn-default btn-sm" href="{{ browse_url }}?filter=my_contributions">{% translate "My contributions" %}</a>
+      <a class="btn btn-default btn-sm" href="{{ edit_url }}?filter=my_contributions">{% translate "Translate my contributions" %}</a>
+      <a class="btn btn-default btn-sm" href="{{ browse_url }}?filter=my_commits">{% translate "My commits" %}</a>
+      <a class="btn btn-default btn-sm" href="{{ edit_url }}?filter=my_commits">{% translate "Translate my commits" %}</a>
+    </div>
+  {% endif %}
 
 </div>
 
