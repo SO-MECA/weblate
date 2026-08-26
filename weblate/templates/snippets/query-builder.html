@@ -45,6 +45,9 @@
               <li>
                 <a class="dropdown-item" href="#" data-field="changed_by:">{% translate "String changed by" %}</a>
               </li>
+              <li>
+                <a class="dropdown-item" href="#" data-field="changed_by_email:">{% translate "String changed by (email)" %}</a>
+              </li>
             </ul>
             <input type="text" class="form-control" placeholder="{% translate "Search for…" %}">
             <span class="input-group-text" id="is-exact">
@@ -121,6 +124,15 @@
             <th>{% translate "My contributions" %}</th>
             <td>
               <code>changed_by:{{ user.username }}</code>
+            </td>
+            <td>
+              <a href="#" class="btn btn-outline-primary search-insert">{% translate "Add" %}</a>
+            </td>
+          </tr>
+          <tr>
+            <th>{% translate "My commits" %}</th>
+            <td>
+              <code>changed_by_email:{{ user.email }}</code>
             </td>
             <td>
               <a href="#" class="btn btn-outline-primary search-insert">{% translate "Add" %}</a>
@@ -267,6 +279,9 @@
                 <li>
                   <a href="#" data-field="changed_by:">{% translate "String changed by" %}</a>
                 </li>
+                <li>
+                  <a href="#" data-field="changed_by_email:">{% translate "String changed by (email)" %}</a>
+                </li>
               </ul>
             </div>
             <!-- /btn-group -->
@@ -358,6 +373,15 @@
             <th>{% translate "My contributions" %}</th>
             <td>
               <code>changed_by:{{ user.username }}</code>
+            </td>
+            <td>
+              <a href="#" class="btn btn-default search-insert">{% translate "Add" %}</a>
+            </td>
+          </tr>
+          <tr>
+            <th>{% translate "My commits" %}</th>
+            <td>
+              <code>changed_by_email:{{ user.email }}</code>
             </td>
             <td>
               <a href="#" class="btn btn-default search-insert">{% translate "Add" %}</a>

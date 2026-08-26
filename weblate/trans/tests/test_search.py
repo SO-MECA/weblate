@@ -142,6 +142,29 @@ class SearchViewTest(TransactionsTestMixin, ViewTestCase):
             f"{self.translation.get_absolute_url()}#search",
         )
 
+    def test_my_commits_filter(self) -> None:
+        """Test that filter=my_commits redirects to changed_by_email query."""
+        response = self.client.get(
+            self.translate_url, {"filter": "my_commits"}
+        )
+        commit_email = self.user.profile.get_commit_email()
+        self.assertRedirects(
+            response,
+            f"{self.translation.get_absolute_url()}"
+            f"?q=changed_by_email:{commit_email}#search",
+        )
+
+    def test_my_commits_filter_anonymous(self) -> None:
+        """Anonymous users should not be redirected via my_commits filter."""
+        self.client.logout()
+        response = self.client.get(
+            self.translate_url, {"filter": "my_commits"}
+        )
+        self.assertRedirects(
+            response,
+            f"{self.translation.get_absolute_url()}#search",
+        )
+
     def extract_params(self, response):
         search_url = re.findall(r'data-params="([^"]*)"', response.content.decode())[0]
         return QueryDict(search_url, mutable=True)

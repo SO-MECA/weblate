@@ -119,10 +119,16 @@ class FilterRegistry:
         user: AbstractBaseUser | AnonymousUser,
     ) -> str:
         """Return filter query for a given name, substituting the current user."""
-        if name == "my_contributions":
+        if name in {"my_contributions", "my_commits"}:
             if not user.is_authenticated:
-                raise ValueError("my_contributions filter requires an authenticated user")
+                raise ValueError(
+                    f"{name} filter requires an authenticated user"
+                )
+        if name == "my_contributions":
             return f"changed_by:{user.username}"
+        if name == "my_commits":
+            commit_email = user.profile.get_commit_email()
+            return f"changed_by_email:{commit_email}"
         return self.get_filter_query(name)
 
 
